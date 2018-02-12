@@ -1,0 +1,34 @@
+{
+  "test.google.com": [
+    {
+      "qtype": 1,
+      "qclass": 1,
+      "ttl": 1,
+      "rdLength": 4,
+      "rdata": "0xbc8a009"
+    },
+    {
+      "qtype": 1,
+      "qclass": 1,
+      "ttl": 1,
+      "rdLength": 4,
+      "rdata": "0x7f000001"
+    }
+  ],
+  "test.example.com": [
+    {
+      "qtype": 1,
+      "qclass": 1,
+      "ttl": 1,
+      "rdLength": 4,
+      "rdata": "0xf3bc8af1"
+    },
+    {
+      "qtype": 1,
+      "qclass": 1,
+      "ttl": 1,
+      "rdLength": 4,
+      "rdata": "0x7f000001"
+    }
+  ]
+}
