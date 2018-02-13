@@ -1,4 +1,4 @@
-const myHttp = require('./http2');
+const myHttp = require('./http');
 // const fs = require('mz/fs');
 const fs = require('fs');
 

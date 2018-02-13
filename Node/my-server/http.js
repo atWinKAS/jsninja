@@ -23,15 +23,15 @@ class MyHttpResponse extends Writable {
   }
 
   setHeader(headerName, value) {
-     console.log('from writable. setting header:', headerName, value);
+    console.log("from writable. setting header:", headerName, value);
   }
 
   writeHead(code) {
-    console.log('from writable. writing head: ', code);
+    console.log("from writable. writing head: ", code);
   }
 
   _write(chunk, encoding, callback) {
-    console.log('from writable. ', chunk.toString());
+    console.log("from writable. ", chunk.toString());
     callback();
   }
 }
@@ -40,6 +40,7 @@ class MyHttpServer extends EventEmitter {
   constructor() {
     super();
     this.port = process.env.PORT || 3000;
+    this.isHeadersReceived = false;
   }
 
   listen(port) {
@@ -54,29 +55,63 @@ class MyHttpServer extends EventEmitter {
       let req = new MyHttpRequest();
       let res = new MyHttpResponse();
 
+      let headerBuffers = [];
+      let bodyBuffers = [];
+
       socket.on("data", data => {
+        debugger;
         console.log("data from socket:", data);
-        //socket.write("data is: ");
-        //socket.write(data);
+
+        console.log("received one chunk of data");
+
+        if (!this.isHeadersReceived) {
+          let separatorPos = data.indexOf(`${EOL}${EOL}`);
+
+          if (separatorPos > 0) {
+            headerBuffers.push(data.slice(0, separatorPos));
+            this.isHeadersReceived = true;
+            /// this is a first time we write to request stream.
+            bodyBuffers.push(data.slice(separatorPos, data.length));
+          } else {
+            headerBuffers.push(data);
+          }
+        } else {
+          req.push(data);
+        }
         
-        // i need parse data object here in order to get headers and body
-        const chunk = data.toString("utf8");
-        const lines = chunk.split(EOL);
+        
+        if (this.isHeadersReceived) {
+          // transform bufheaders to headers
+          console.log('Headers:');
+          console.log();
+          console.log("REQUEST event has been emitted.");
+          
+           const chunk = Buffer.concat(headerBuffers).toString("utf8");
+         const lines = chunk.split(EOL);
 
-        const firstLine = lines[0];
+         const firstLine = lines[0];
 
-        req.method = firstLine.split(" ")[0];
-        req.url = firstLine.split(" ")[1];
+         req.method = firstLine.split(" ")[0];
+         req.url = firstLine.split(" ")[1];
 
-        lines.shift();
-        req.headers = this.readHeaders(lines);
+         lines.shift();
+         req.headers = this.readHeaders(lines);
         console.log("headers are:");
         console.log(req.headers);
 
-        socket.pipe(req);
-        res.write(data);
+          
+          this.emit("request", req, res);
 
-        this.emit("request", req, res);
+          // push bufbody to request stram
+          if (bodyBuffers.length > 0) {
+            console.log(Buffer.concat(bodyBuffers).toString());
+            req.push(Buffer.concat(bodyBuffers));
+            bodyBuffers = [];
+          } else {
+            req.push(data);
+          }         
+          
+        }
       });
     });
 
