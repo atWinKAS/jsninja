@@ -35,6 +35,10 @@ var app = function(req, res) {
         }
 
         const file = fs.createReadStream(`./static/${fileName}`);
+        /// i can handle error event here but the problem is at this moment response headers have been written to out stream and i do not know how to override it.
+        file.on('error', function(err) {
+            console.log(err);
+        });
 
         /// by design here in file parameter should be writeble stream. Have no idea why... and it does not work with wribable.
         res(200, headers, file);
@@ -60,9 +64,26 @@ function logger(app) {
     };
 }
 
-var appWithLogger = logger(app);
+function headersPrinter(app) {
+    return function(req, res) {
+        /// here we can print request headers
+        console.log('\nprinting request headers:');
 
-var handler = require('./web').socketHandler(appWithLogger, {
+        for (var rh in req.headers) {
+            console.log(`${rh}: ${req.headers[rh]}`);
+        }
+
+        console.log('request headers have been printed.\n');
+        app(req, function(code, headers, body) {
+            res(code, headers, body);
+        });
+    };
+}
+
+app = logger(app);
+app = headersPrinter(app);
+
+var handler = require('./web').socketHandler(app, {
     autoDate: true,
 });
 var server = require('net').createServer(handler);
