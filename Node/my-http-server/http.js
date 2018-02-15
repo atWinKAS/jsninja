@@ -7,7 +7,7 @@ const { Readable, Writable } = require("stream");
 class MyHttpRequest extends Readable {
   constructor() {
     super();
-    this.headers = {};
+    this.headers = [];
     this.method = "";
     this.url = "";
   }
@@ -33,6 +33,18 @@ class MyHttpResponse extends Writable {
   _write(chunk, encoding, callback) {
     console.log("from writable. ", chunk.toString());
     callback();
+  }
+
+  sendText(code, text) {
+    console.log('Sending text response:', code, text);
+    var head = 'HTTP/1.1 ' + code + ' OK' + EOL;
+    head += 'Content-Type: text/plain; charset=utf-8' + EOL;
+    head += EOL;
+    head += text + EOL;
+    
+    this.write(head);
+    this.end();
+    console.log('Text has been sent.');
   }
 }
 
@@ -82,9 +94,9 @@ class MyHttpServer extends EventEmitter {
         
         if (this.isHeadersReceived) {
           // transform bufheaders to headers
-          console.log('Headers:');
-          console.log();
-          console.log("REQUEST event has been emitted.");
+          //console.log('Headers:');
+          //console.log();
+          //console.log("REQUEST event has been emitted.");
           
            const chunk = Buffer.concat(headerBuffers).toString("utf8");
          const lines = chunk.split(EOL);
@@ -96,8 +108,8 @@ class MyHttpServer extends EventEmitter {
 
          lines.shift();
          req.headers = this.readHeaders(lines);
-        console.log("headers are:");
-        console.log(req.headers);
+        //console.log("headers are:");
+        //console.log(req.headers);
 
           
           this.emit("request", req, res);

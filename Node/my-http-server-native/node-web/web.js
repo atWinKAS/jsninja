@@ -71,6 +71,7 @@ exports.socketHandler = function(app, options) {
         parser[kOnExecute] = function() {};
 
         function res(statusCode, headers, body) {
+            debugger;
             var hasContentLength, hasTransferEncoding, hasDate, hasServer;
             for (var header in headers) {
                 switch (header.toLowerCase()) {
