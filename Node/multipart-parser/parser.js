@@ -5,20 +5,18 @@ class FileReadable extends Readable {
     constructor(opt) {
         super(opt);
         debugger;
-
-        this._max = 3;
-        this._index = 1;
+        this.readsAmount = 3;
+        this.alreadyRead = 0;
     }
   
     _read() {
         debugger;
-        const i = this._index++;
-        if (i > this._max)
+        
+        if (this.alreadyRead <= this.readsAmount) {
+            this.push(Buffer.from('Hello'));
+            this.alreadyRead++;
+        } else {
             this.push(null);
-        else {
-            const str = '' + i;
-            const buf = Buffer.from(str, 'ascii');
-            this.push(buf);
         }
     }
 }
