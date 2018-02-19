@@ -5,19 +5,10 @@ class FileReadable extends Readable {
     constructor(opt) {
         super(opt);
         debugger;
-        this.readsAmount = 3;
-        this.alreadyRead = 0;
     }
   
     _read() {
         debugger;
-        
-        if (this.alreadyRead <= this.readsAmount) {
-            this.push(Buffer.from('Hello'));
-            this.alreadyRead++;
-        } else {
-            this.push(null);
-        }
     }
 }
 
@@ -38,7 +29,9 @@ class Parser extends Writable {
         // console.log(chunk.toString());
         // console.log('end write.');
 
-        //this.file.push(chunk);
+        
+        this.file.push(chunk);
+
         let fieldname1 = 'fieldname1';
         let filename = 'filename';
         let contentType = 'contentType';

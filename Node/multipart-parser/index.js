@@ -1,23 +1,34 @@
 const { createServer } = require('http');
 const Parser = require('./parser'); // ваш код
+var fs = require('fs');
 
 createServer((req, res) => {
     if (req.method === 'POST') {
         console.log('POST request');
        debugger; 
         const parser = new Parser({ headers: req.headers });
-        
+        console.log(req.headers);
         parser.on('file', (fieldname, file, filename, contentType) => {
             debugger;
             console.log('parser on file');
             // file должен быть Readable stream
-            file.on('data', ({ length }) => {
+            // let's try to pipe readable to some text.
+
+            var w = fs.createWriteStream('c:\\temp\\debug.txt');
+            w.on('finish', function () {
                 debugger;
-                console.log(`Got ${length} bytes`);
+                console.log('FINISHED to debug.txt');
+              });
+             
+            file.on('data', (data) => {
+                debugger;
+                w.write(data);
+                console.log(`Got ${data.length} bytes`);
             });
             
             file.on('end', () => {
                 debugger;
+                w.end();
                 console.log('File finished'); 
             });
         });
