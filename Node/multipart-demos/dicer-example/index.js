@@ -7,14 +7,7 @@ var Dicer = require('dicer');
 
     // quick and dirty way to parse multipart boundary
 var RE_BOUNDARY = /^multipart\/.+?(?:; boundary=(?:(?:"(.+)")|(?:([^\s]+))))$/i,
-    HTML = new Buffer('<html><head></head><body>\
-                       <form method="POST" enctype="multipart/form-data">\
-                         <input type="text" name="textfield"><br />\
-                         <input type="file" name="filefield"><br />\
-                         <input type="submit">\
-                       </form>\
-                       </body></html>'),
-    PORT = 8080;
+    PORT = 8001;
 
 http.createServer(function(req, res) {
   var m;
@@ -33,6 +26,7 @@ http.createServer(function(req, res) {
         }
       });
       p.on('data', function(data) {
+        debugger;
         console.log('PART!!!!');
         w.write(data);
         //console.log('Part data: ' + inspect(data.toString()));
@@ -43,13 +37,11 @@ http.createServer(function(req, res) {
     });
     d.on('finish', function() {
       console.log('End of parts');
+      w.end();
       res.writeHead(200);
       res.end('Form submission successful!');
     });
     req.pipe(d);
-  } else if (req.method === 'GET' && req.url === '/') {
-    res.writeHead(200);
-    res.end(HTML);
   } else {
     res.writeHead(404);
     res.end();

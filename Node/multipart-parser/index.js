@@ -5,7 +5,7 @@ var fs = require('fs');
 createServer((req, res) => {
     if (req.method === 'POST') {
         console.log('POST request');
-       debugger; 
+       var debugWriteStream = fs.createWriteStream('c:\\temp\\debug.txt');
         const parser = new Parser({ headers: req.headers });
         console.log(req.headers);
         parser.on('file', (fieldname, file, filename, contentType) => {
@@ -14,21 +14,21 @@ createServer((req, res) => {
             // file должен быть Readable stream
             // let's try to pipe readable to some text.
 
-            var w = fs.createWriteStream('c:\\temp\\debug.txt');
-            w.on('finish', function () {
+            
+            debugWriteStream.on('finish', function () {
                 debugger;
                 console.log('FINISHED to debug.txt');
               });
+              
              
             file.on('data', (data) => {
                 debugger;
-                w.write(data);
+                debugWriteStream.write(data);
                 console.log(`Got ${data.length} bytes`);
             });
             
             file.on('end', () => {
                 debugger;
-                w.end();
                 console.log('File finished'); 
             });
         });
@@ -41,6 +41,7 @@ createServer((req, res) => {
 
         parser.on('finish', function() {
             debugger;
+            debugWriteStream.end();
             console.log('parser on finish');
             console.log('Done parsing form!');
             res.writeHead(200);
